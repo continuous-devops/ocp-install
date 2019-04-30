@@ -10,7 +10,7 @@ controlPlane:
   replicas: 3
 metadata:
   creationTimestamp: null
-name: __CLUSTERNAME__ 
+  name: __CLUSTERNAME__ 
 networking:
   clusterNetwork:
   - cidr: 10.128.0.0/14
