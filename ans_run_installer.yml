@@ -1,21 +1,12 @@
 ---
 - hosts: localhost
   gather_facts: yes
-  vars:
-    base_dir: "~/.os-install"
-    cluster_name: "ttcd-ari"
-    os_install_name: "openshift-install"
-    install_dir: "{{ base_dir }}/install"
-    cluster_dir:  "{{ base_dir }}/{{ cluster_name }}"
-    aws_region: "us-east-1"
-    pull_secret_file: "~/.aws/pull-secret.json"
-    ssh_key_file: "~/.ssh/id_rsa.pub"
-    ssh_key: "{{ lookup('file', ssh_key_file) }}"
-    get_release: true
-    create_cluster: true
   environment:
     KUBECONFIG: "{{ cluster_dir }}/auth/kubeconfig"
   tasks:
+    - name: "Include defaults for os-install vars"
+      include_vars: config/os-install-defaults.yaml
+
     - name: "Create install directory"
       file: 
         path: "{{ install_dir }}"
