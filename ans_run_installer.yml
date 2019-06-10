@@ -64,6 +64,10 @@
       shell: "./{{ os_install_name }} --dir {{ cluster_dir }} destroy cluster"
       args:
         chdir: "{{ install_dir }}"
+      retries: 3
+      delay: 3
+      register: result
+      until: result.rc == 0
       ignore_errors: true
       
     - name: "Cleanup previous cluster config files"
@@ -98,6 +102,10 @@
       shell: "./{{ os_install_name }} --dir {{ cluster_dir }} create cluster"
       args:
         chdir: "{{ install_dir }}"
+      retries: 5
+      delay: 10
+      register: result
+      until: result.rc == 0
       when: create_cluster
 
         
