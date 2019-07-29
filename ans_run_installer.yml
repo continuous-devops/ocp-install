@@ -1,8 +1,6 @@
 ---
 - hosts: localhost
   gather_facts: yes
-  environment:
-    KUBECONFIG: "{{ cluster_dir }}/auth/kubeconfig"
   tasks:
     - name: "Include defaults for os-install vars"
       include_vars: config/os-install-defaults.yaml
@@ -102,6 +100,8 @@
       shell: "./{{ os_install_name }} --dir {{ cluster_dir }} create cluster"
       args:
         chdir: "{{ install_dir }}"
+      environment:
+        KUBECONFIG: "{{ cluster_dir }}/auth/kubeconfig"
       retries: 5
       delay: 10
       register: result
