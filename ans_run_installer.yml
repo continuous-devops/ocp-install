@@ -6,64 +6,108 @@
       include_vars: config/os-install-defaults.yaml
 
     - name: "Create install directory"
-      file: 
-        path: "{{ install_dir }}"
+      file:
+        path: "{{ ocp_install_dir }}"
         state: directory
 
-    - name: "Get latest release of openshift-install"
+    - name: "Get {{ ocp_release }} release of OCP"
       block:
-        - name: "Query github for latest installer release"
-          shell:  "curl -s https://api.github.com/repos/openshift/installer/releases | jq -r '.[0].assets[0].browser_download_url' | sed 's/darwin/linux/'"
-          register: os_install_release
-    
-        - name: "Download a the openshift installer"
-          get_url: 
-            url: "{{ os_install_release.stdout }}"
-            dest: "{{ install_dir }}/{{ os_install_name }}"
-            mode: 0775
-      when: get_release
-    
-    - name: "Get latest openshift-install green in CI"
-      block:
-        - name: "Pull down latest openshift-install to pass CI"
-          shell: "curl -s https://openshift-release.svc.ci.openshift.org/api/v1/releasestream/4.1.0-0.ci/latest | jq '.pullSpec' | awk -F '/' '{print $NF}' | sed 's/release\\:\\(.*\\)\"/\\1/'"
-          args:
-            chdir: "{{ install_dir }}"
-          register: os_install_release
+        - name: "Get version and upgrade of release {{ ocp_release }}"
+          shell:  "curl -s {{ ocp_rel_url }}/{{ ocp_release }}/release.txt | egrep 'Version:|Upgrades:'"
+          register: ocp_release_info
 
-        - name: "Pull down latest openshift-install to pass CI"
-          shell: "./oc adm release extract --tools registry.svc.ci.openshift.org/ocp/release:{{ oc_install_release.stdout }}"
-          args:
-            chdir: "{{ install_dir }}"
+        - name: "Display version and upgrade for OCP"
+          debug:
+            var: ocp_release_info.stdout_lines
 
-        - name: "Unarchive openshift-install-linux-{{ oc_install_release.stdout }}.tar.gz"
+        - name: "Download the OpenShift installer"
+          get_url:
+            url: "{{ ocp_rel_url }}/{{ ocp_release }}/openshift-install-linux.tar.gz"
+            dest: "{{ ocp_install_dir }}"
+
+        - name: "Unarchive the OpenShift installer"
           unarchive:
-            src: "{{ install_dir }}/openshift-install-linux-{{ oc_install_release.stdout }}.tar.gz"
-            dest: "{{ install_dir }}"
-      when: not get_release
+            src: "{{ ocp_install_dir }}/openshift-install-linux.tar.gz"
+            dest: "{{ ocp_install_dir }}"
 
-    - name: "Copy the ./bin/oc to {{ install_dir }}/oc"
-      copy:
-        src: "./bin/oc"
-        dest: "{{ install_dir }}/oc"
-        mode: 0775
-  
-    - name: "Check the version of the openshift-install"
-      shell: "./{{ os_install_name }} version"
+        - name: "Download the OpenShift oc client"
+          get_url:
+            url: "{{ ocp_rel_url }}/{{ ocp_release }}/openshift-client-linux.tar.gz"
+            dest: "{{ ocp_install_dir }}"
+
+        - name: "Unarchive the OpenShift oc client"
+          unarchive:
+            src: "{{ ocp_install_dir }}/openshift-client-linux.tar.gz"
+            dest: "{{ ocp_install_dir }}"
+      when: get_release|bool == true
+
+    - name: "Get the {{ ocp_ci_release }} that is green in CI"
+      block:
+        - name: "Get OpenShift CI artifact location that last passed CI"
+          shell: "curl -s {{ ocp_ci_api_rel_url }}/{{ ocp_ci_release }}/latest | jq '.pullSpec' | awk -F '/' '{print $NF}' | sed 's/release\\:\\(.*\\)\"/\\1/'"
+          args:
+            chdir: "{{ ocp_install_dir }}"
+          register: ocp_artifact_info
+
+        - name: "Display OpenShift CI artifact info"
+          debug:
+            var: ocp_artifact_info.stdout
+
+        - name: "Keep checking until OpenShift CI artifacts are ready for download"
+          shell: "curl -s {{ ocp_ci_rel_url }}/{{ ocp_artifact_info.stdout }}"
+          register: oc_check_ci_release
+          until: oc_check_ci_release.stdout  == ""
+          retries: 30
+          delay: 10
+          ignore_errors: yes
+
+        - name: "Get version and upgrade of release {{ ocp_artifact_info.stdout }} from OpenShift CI"
+          shell: "curl -s {{ ocp_ci_rel_url }}/{{ ocp_artifact_info.stdout }}/release.txt | egrep 'Version:|Upgrades:'"
+          args:
+            chdir: "{{ ocp_install_dir }}"
+          register: ocp_release_info
+
+        - name: "Display version and upgrade for OCP"
+          debug:
+            var: ocp_release_info.stdout_lines
+
+        - name: "Download the OpenShift installer from CI"
+          get_url:
+            url: "{{ ocp_ci_rel_url }}/{{ ocp_artifact_info.stdout }}/openshift-install-linux-{{ ocp_artifact_info.stdout }}.tar.gz"
+            dest: "{{ ocp_install_dir }}"
+
+        - name: "Unarchive the OpenShift installer from CI"
+          unarchive:
+            src: "{{ ocp_install_dir }}/openshift-install-linux-{{ ocp_artifact_info.stdout }}.tar.gz"
+            dest: "{{ ocp_install_dir }}"
+
+        - name: "Download the OpenShift oc client from CI"
+          get_url:
+            url: "{{ ocp_ci_rel_url }}/{{ ocp_artifact_info.stdout }}/openshift-client-linux-{{ ocp_artifact_info.stdout }}.tar.gz"
+            dest: "{{ ocp_install_dir }}"
+
+        - name: "Unarchive the OpenShift oc client from CI"
+          unarchive:
+            src: "{{ ocp_install_dir }}/openshift-client-linux-{{ ocp_artifact_info.stdout }}.tar.gz"
+            dest: "{{ ocp_install_dir }}"
+      when: get_release|bool == false
+
+    - name: "OpenShift openshift-install Version"
+      shell: "./openshift-install version"
       args:
-        chdir: "{{ install_dir }}"
-      register: os_install_ver
+        chdir: "{{ ocp_install_dir }}"
 
-    - name: "Display version of openshift-install"
-      debug:
-        var: os_install_ver.stdout
+    - name: "OpenShift Client Version"
+      shell: "./oc version --client"
+      args:
+        chdir: "{{ ocp_install_dir }}"
 
     - name: "Destroy existing cluster if exists"
-      shell: "./{{ os_install_name }} --dir {{ cluster_dir }} destroy cluster"
+      shell: "./openshift-install --dir {{ cluster_dir }} destroy cluster"
       args:
-        chdir: "{{ install_dir }}"
-      retries: 3
-      delay: 3
+        chdir: "{{ ocp_install_dir }}"
+      retries: 6
+      delay: 10
       register: result
       until: result.rc == 0
       ignore_errors: true
@@ -97,9 +141,9 @@
             dest: "{{ cluster_dir }}/install-config.yaml"
 
     - name: "Create cluster"
-      shell: "./{{ os_install_name }} --dir {{ cluster_dir }} create cluster"
+      shell: "./openshift-install --dir {{ cluster_dir }} create cluster"
       args:
-        chdir: "{{ install_dir }}"
+        chdir: "{{ ocp_install_dir }}"
       environment:
         KUBECONFIG: "{{ cluster_dir }}/auth/kubeconfig"
       retries: 5

@@ -6,8 +6,8 @@ Repo to grab and run the openshift-install for 4.0 and greater clusters using a 
 ```
     base_dir: "~/.os-install"
     cluster_name: "ttcd-ari"
-    os_install_name: "openshift-install"
-    install_dir: "{{ base_dir }}/install"
+    ocp_installer_name: "openshift-install"
+    ocp_install_dir: "{{ base_dir }}/install"
     cluster_dir:  "{{ base_dir }}/{{ cluster_name }}"
     aws_region: "us-east-1"
     pull_secret_file: "~/.aws/pull-secret.json"
