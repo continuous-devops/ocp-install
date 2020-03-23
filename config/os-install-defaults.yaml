@@ -1,7 +1,7 @@
 # Default os-install variable settings
 base_dir: "~/.os-install"
 ocp_install_dir: "{{ base_dir }}/ocp"
-ocp_ci_release: "4.3.0-0.ci"
+ocp_ci_release: "4.4.0-0.ci"
 ocp_release: "latest"
 ocp_rel_url: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp"
 ocp_ci_api_rel_url: "https://openshift-release.svc.ci.openshift.org/api/v1/releasestream"

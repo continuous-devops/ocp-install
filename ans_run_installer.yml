@@ -102,25 +102,21 @@
       args:
         chdir: "{{ ocp_install_dir }}"
 
-    - name: "Destroy existing cluster if exists"
+    - name: "Destroy existing cluster {{ cluster_dir }} if exists"
       shell: "./openshift-install --dir {{ cluster_dir }} destroy cluster"
       args:
         chdir: "{{ ocp_install_dir }}"
-      retries: 6
-      delay: 10
-      register: result
-      until: result.rc == 0
       ignore_errors: true
       
-    - name: "Cleanup previous cluster config files"
-      block:
-        - name: "Delete {{ cluster_dir }} directory if it exists"
-          file:
-            path: "{{ item }}"
-            state: absent
-          with_items:
-            - "{{ cluster_dir }}"
+    - name: "Delete {{ cluster_dir }} directory if it exists"
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - "{{ cluster_dir }}"
 
+    - name: "Create cluster"
+      block:
         - name: "Create cluster directory"
           file:
             path: "{{ cluster_dir }}"
@@ -140,16 +136,16 @@
             src: "templates/install-config-temp.yaml.j2"
             dest: "{{ cluster_dir }}/install-config.yaml"
 
-    - name: "Create cluster"
-      shell: "./openshift-install --dir {{ cluster_dir }} create cluster"
-      args:
-        chdir: "{{ ocp_install_dir }}"
-      environment:
-        KUBECONFIG: "{{ cluster_dir }}/auth/kubeconfig"
-      retries: 5
-      delay: 10
-      register: result
-      until: result.rc == 0
-      when: create_cluster
+        - name: "Execute openshift-install to create the cluster {{ cluster_dir }}"
+          shell: "rm -f {{ cluster_dir }}/terraform.tfstate; ./openshift-install --dir {{ cluster_dir }} create cluster"
+          args:
+            chdir: "{{ ocp_install_dir }}"
+          environment:
+            KUBECONFIG: "{{ cluster_dir }}/auth/kubeconfig"
+#          retries: 5
+#          delay: 10
+          register: cluster_create_result
+          until: cluster_create_result.rc == 0
+      when: create_cluster|bool == true
 
         
