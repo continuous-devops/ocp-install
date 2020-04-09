@@ -3,7 +3,7 @@
   gather_facts: yes
   tasks:
     - name: "Include defaults for os-install vars"
-      include_vars: config/os-install-defaults.yaml
+      include_vars: "{{ playbook_dir }}/config/os-install-defaults.yaml"
 
     - name: "Create install directory"
       file:
@@ -39,7 +39,7 @@
           unarchive:
             src: "{{ ocp_install_dir }}/openshift-client-linux.tar.gz"
             dest: "{{ ocp_install_dir }}"
-      when: get_release|bool == true
+      when: get_release|bool == true and get_ocp|bool == true
 
     - name: "Get the {{ ocp_ci_release }} that is green in CI"
       block:
@@ -90,7 +90,7 @@
           unarchive:
             src: "{{ ocp_install_dir }}/openshift-client-linux-{{ ocp_artifact_info.stdout }}.tar.gz"
             dest: "{{ ocp_install_dir }}"
-      when: get_release|bool == false
+      when: get_release|bool == false and get_ocp|bool == true
 
     - name: "OpenShift openshift-install Version"
       shell: "./openshift-install version"
@@ -102,18 +102,24 @@
       args:
         chdir: "{{ ocp_install_dir }}"
 
-    - name: "Destroy existing cluster {{ cluster_dir }} if exists"
+    - name: "Check if {{ cluster_dir }} exists"
+      stat:
+        path: "{{ cluster_dir }}"
+      register: cluster_dir_status
+
+    - name: "Destroy existing cluster {{ cluster_dir }}"
       shell: "./openshift-install --dir {{ cluster_dir }} destroy cluster"
       args:
         chdir: "{{ ocp_install_dir }}"
-      ignore_errors: true
+      async: 300
+      poll: 0
+      when: cluster_dir_status.stat.isdir is defined
       
-    - name: "Delete {{ cluster_dir }} directory if it exists"
+    - name: "Delete {{ cluster_dir }} directory"
       file:
-        path: "{{ item }}"
+        path: "{{ cluster_dir }}"
         state: absent
-      with_items:
-        - "{{ cluster_dir }}"
+      when: cluster_dir_status.stat.isdir is defined
 
     - name: "Create cluster"
       block:
@@ -121,6 +127,14 @@
           file:
             path: "{{ cluster_dir }}"
             state: directory
+
+        - name: "Add UUID to {{ cluster_name }}"
+          set_fact:
+            cluster_name_uuid: "{{ cluster_name }}-{{ ansible_date_time.iso8601_micro | to_uuid | regex_replace('-.*') }}"
+
+        - name: "display cluster name with uuid"
+          debug:
+            var: cluster_name_uuid
 
         ## doing this since lookup strips double quotes for single quotes"
         - name: "Cat pull secret file"
@@ -136,16 +150,22 @@
             src: "templates/install-config-temp.yaml.j2"
             dest: "{{ cluster_dir }}/install-config.yaml"
 
+        - name: "Backup install-config.yaml"
+          copy:
+            src: "{{ cluster_dir }}/install-config.yaml"
+            dest: "{{ cluster_dir }}/install-config.yaml.backup"
+
         - name: "Execute openshift-install to create the cluster {{ cluster_dir }}"
-          shell: "rm -f {{ cluster_dir }}/terraform.tfstate; ./openshift-install --dir {{ cluster_dir }} create cluster"
+          shell: "./openshift-install --dir {{ cluster_dir }} create cluster"
           args:
             chdir: "{{ ocp_install_dir }}"
           environment:
             KUBECONFIG: "{{ cluster_dir }}/auth/kubeconfig"
-#          retries: 5
-#          delay: 10
           register: cluster_create_result
-          until: cluster_create_result.rc == 0
+
+        - name: "Results of cluster creation"
+          debug:
+            var: cluster_create_result.stdout
       when: create_cluster|bool == true
 
         

@@ -13,4 +13,5 @@ pull_secret_file: "~/.aws/pull-secret.json"
 ssh_key_file: "~/.ssh/id_rsa.pub"
 ssh_key: "{{ lookup('file', ssh_key_file) }}"
 get_release: true
+get_ocp: true
 create_cluster: true
