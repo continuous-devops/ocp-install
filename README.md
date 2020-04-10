@@ -1,5 +1,5 @@
 # os-install
-Repo to grab and run the openshift-install for 4.0 and greater clusters using a release or ci version
+Download release or version that passed ci of OCP which includes the openshift-installer and oc
 
 ## Settings and defaults
 
@@ -18,6 +18,7 @@ Repo to grab and run the openshift-install for 4.0 and greater clusters using a 
     ssh_key_file: "~/.ssh/id_rsa.pub"
     ssh_key: "{{ lookup('file', ssh_key_file) }}"
     get_release: true
+    get_ocp: true
     create_cluster: true
 ```
 
@@ -59,9 +60,16 @@ default: "~/.ssh/id_rsa.pub"
 ```
 
 ### get_release
-This means the latest release of the openshift-installer will get downloaded otherwise it pulls from
+Latest release of OCP :: openshift-installer and oc will get downloaded otherwise it pulls from
 the latest version that passed ci.
 
+```
+default: true
+
+```
+
+### get_ocp
+Download OCP openshift-installer and oc client based on get_release version or latest that passed ci.
 ```
 default: true
 
@@ -77,6 +85,6 @@ This will create a cluster otherwise will just destroy a previous one with the s
 ## Examples
 
 ```
-ansible-playbook -vv -i "localhost," -c local ans_run_installer.yml
+ansible-playbook -vv -i "localhost," -c local setup_tekton.yml
 
 ```
