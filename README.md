@@ -85,6 +85,6 @@ This will create a cluster otherwise will just destroy a previous one with the s
 ## Examples
 
 ```
-ansible-playbook -vv -i "localhost," -c local setup_tekton.yml
+ansible-playbook -vv -i "localhost," -c local install.yml
 
 ```
