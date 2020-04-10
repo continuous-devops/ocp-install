@@ -160,7 +160,7 @@
   - set_fact:
       console_url: "https://console-openshift-console.apps.{{ cluster_name_uuid }}.devcluster.openshift.com/"
       api_url: "https://api.{{ cluster_name_uuid }}.devcluster.openshift.com:6443/"
-      kubeadmin_password: "{{ lookup('file', '~/.os-install/{{ cluster_name }}/auth/kubeadmin-password') }}"
+      kubeadmin_password: "{{ lookup('file', '{{ cluster_dir }}/auth/kubeadmin-password') }}"
 
   - debug:
       msg: "{{ item }}"
