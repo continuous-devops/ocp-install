@@ -162,6 +162,14 @@
       api_url: "https://api.{{ cluster_name_uuid }}.devcluster.openshift.com:6443/"
       kubeadmin_password: "{{ lookup('file', '{{ cluster_dir }}/auth/kubeadmin-password') }}"
 
+  - name: "Console url, API url, and kubeadmin_password to {{ cluster_dir }}/os-install.log"
+    copy:
+      content: |
+        Console: {{ console_url }}
+        API: {{ api_url }}
+        kubeadmin_password: {{ kubeadmin_password }}
+      dest: "{{ cluster_dir }}/os-install.log"
+
   - debug:
       msg: "{{ item }}"
     with_items:

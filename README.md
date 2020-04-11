@@ -88,3 +88,8 @@ This will create a cluster otherwise will just destroy a previous one with the s
 ansible-playbook -vv -i "localhost," -c local install.yml
 
 ```
+
+## Outputs
+ 
+At the end of a run the console url, API url, and the kubeadmin_password are printed.  </br>
+They Are also stored in the cluster name directory  in the os-install.log.
