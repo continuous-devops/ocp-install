@@ -4,6 +4,7 @@ Download release or version that passed ci of OCP which includes the openshift-i
 ## Settings and defaults
 
 ```
+    install_cluster: true
     base_dir: "~/.os-install"
     ocp_install_dir: "{{ base_dir }}/ocp"
     ocp_ci_release: "4.4.0-0.ci"

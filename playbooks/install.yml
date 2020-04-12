@@ -2,5 +2,5 @@
 - hosts: '{{ hosts | default("all") }}'
   gather_facts: '{{ gather_facts | default("yes") }}'
   roles:
-    - role: install_cluster
+    - { role: install_cluster, when: "install_cluster|bool == true" }
     - { role: install_tekton, when: "install_tekton|bool == true" }
