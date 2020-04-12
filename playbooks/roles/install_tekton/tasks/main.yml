@@ -1,0 +1,18 @@
+---
+- name: "Login to cluster as {{ kubeadmin }}"
+  shell: "./oc login -u {{ kubeadmin }} -p $( cat {{ cluster_dir }}/auth/kubeadmin-password ) --insecure-skip-tls-verify=true https://api.$( cat {{ cluster_dir }}/metadata.json | jq -r '.clusterName' ).devcluster.openshift.com:6443"
+  args:
+    chdir: "{{ ocp_install_dir }}"
+
+- name: "Subscribe to the openshift-pipelines-operator in the openshift market place"
+  shell: "./oc apply -f {{ role_path }}/files/openshift-pipelines-operator-sub.yaml"
+  args:
+    chdir: "{{ ocp_install_dir }}"
+
+- pause:
+    seconds: 30
+
+- name: "Add openshift-pipelines functionality to the cluster"
+  shell: "./oc apply -f {{ role_path }}/files/openshift-pipelines-operator-instance.yaml"
+  args:
+    chdir: "{{ ocp_install_dir }}"

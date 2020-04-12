@@ -1,4 +1,7 @@
 # Default os-install variable settings
+
+# OCP cluster install variables
+install_cluster: true
 base_dir: "~/.os-install"
 ocp_install_dir: "{{ base_dir }}/ocp"
 ocp_ci_release: "4.4.0-0.ci"
@@ -15,3 +18,7 @@ ssh_key: "{{ lookup('file', ssh_key_file) }}"
 get_release: true
 get_ocp: true
 create_cluster: true
+kubeadmin: "kubeadmin"
+
+# tekton install variables
+install_tekton: true

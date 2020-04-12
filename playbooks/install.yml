@@ -3,3 +3,4 @@
   gather_facts: '{{ gather_facts | default("yes") }}'
   roles:
     - role: install_cluster
+    - { role: install_tekton, when: "install_tekton|bool == true" }
