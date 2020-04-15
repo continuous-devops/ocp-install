@@ -9,7 +9,8 @@
   args:
     chdir: "{{ ocp_install_dir }}"
 
-- pause:
+- name: "Pause for 30 seconds for the operator to be installed via the marketplace"
+  pause:
     seconds: 30
 
 - name: "Add openshift-pipelines functionality to the cluster"

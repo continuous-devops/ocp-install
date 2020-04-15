@@ -49,4 +49,4 @@ ansible-playbook -vv -i "localhost," -c local -e cluster_name=my-tekton-cluster 
 ## Outputs
  
 At the end of a run the console url, API url, and the kubeadmin_password are printed.  </br>
-They Are also stored in the cluster name directory in the os-install.log.
+They Are also stored in the cluster name directory in the cluster_creds.log.

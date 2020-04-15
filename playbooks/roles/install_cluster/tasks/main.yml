@@ -168,7 +168,7 @@
         Console: {{ console_url }}
         API: {{ api_url }}
         kubeadmin_password: {{ kubeadmin_password }}
-      dest: "{{ cluster_dir }}/os-install.log"
+      dest: "{{ cluster_dir }}/cluster_creds.log"
 
   - debug:
       msg: "{{ item }}"
@@ -176,4 +176,9 @@
       - "Console: {{ console_url }}"
       - "API: {{ api_url }}"
       - "kubeadmin_password: {{ kubeadmin_password }}"
+
+  - name: "Pause for cluster end points to be available after install"
+    pause:
+      seconds: 30
+
   when: create_cluster|bool == true
