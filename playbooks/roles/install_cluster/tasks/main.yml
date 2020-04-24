@@ -101,13 +101,17 @@
     path: "{{ cluster_dir }}"
   register: cluster_dir_status
 
-- name: "Destroy existing cluster {{ cluster_dir }}"
+- name: "Destroy existing cluster {{ cluster_dir }} but don't wait to be complete"
   shell: "./openshift-install --dir {{ cluster_dir }} destroy cluster"
   args:
     chdir: "{{ ocp_install_dir }}"
   async: 300
-  poll: 30
+  poll: 0
   when: cluster_dir_status.stat.isdir is defined
+
+- name: "Pause for cluster to completely deleted"
+  pause:
+    seconds: 300
 
 - name: "Delete {{ cluster_dir }} directory"
   file:
