@@ -165,6 +165,13 @@
       console_url: "https://console-openshift-console.apps.{{ cluster_name }}.devcluster.openshift.com/"
       api_url: "https://api.{{ cluster_name }}.devcluster.openshift.com:6443/"
       kubeadmin_password: "{{ lookup('file', '{{ cluster_dir }}/auth/kubeadmin-password') }}"
+    when: install_type == "aws"
+
+  - set_fact:
+      console_url: "https://console-openshift-console.apps.{{ cluster_name }}.gcp.devcluster.openshift.com/"
+      api_url: "https://api.{{ cluster_name }}.gcp.devcluster.openshift.com:6443/"
+      kubeadmin_password: "{{ lookup('file', '{{ cluster_dir }}/auth/kubeadmin-password') }}"
+    when: install_type == "gcp"
 
   - name: "Console url, API url, and kubeadmin_password to {{ cluster_dir }}/os-install.log"
     copy:
