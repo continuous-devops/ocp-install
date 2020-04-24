@@ -106,7 +106,7 @@
   args:
     chdir: "{{ ocp_install_dir }}"
   async: 300
-  poll: 0
+  poll: 30
   when: cluster_dir_status.stat.isdir is defined
 
 - name: "Delete {{ cluster_dir }} directory"
@@ -115,40 +115,32 @@
     state: absent
   when: cluster_dir_status.stat.isdir is defined
 
+- name: "Create cluster directory"
+  file:
+    path: "{{ cluster_dir }}"
+    state: directory
+
+## doing this since lookup strips double quotes for single quotes"
+- name: "Cat pull secret file"
+  shell: "cat {{ pull_secret_file }}"
+  register: pull_secret
+
+- name: "display pull_secret"
+  debug:
+    var: pull_secret.stdout
+
+- name: "Deploy version of install-config.yaml"
+  template:
+    src: "install-config-temp.yaml.j2"
+    dest: "{{ cluster_dir }}/install-config.yaml"
+
+- name: "Backup install-config.yaml"
+  copy:
+    src: "{{ cluster_dir }}/install-config.yaml"
+    dest: "{{ cluster_dir }}/install-config.yaml.backup"
+
 - name: "Create cluster"
   block:
-  - name: "Create cluster directory"
-    file:
-      path: "{{ cluster_dir }}"
-      state: directory
-
-  - name: "Add UUID to {{ cluster_name }}"
-    set_fact:
-      cluster_name_uuid: "{{ cluster_name }}-{{ ansible_date_time.iso8601_micro | to_uuid | regex_replace('-.*') }}"
-
-  - name: "display cluster name with uuid"
-    debug:
-      var: cluster_name_uuid
-
-  ## doing this since lookup strips double quotes for single quotes"
-  - name: "Cat pull secret file"
-    shell: "cat {{ pull_secret_file }}"
-    register: pull_secret
-
-  - name: "display pull_secret"
-    debug:
-      var: pull_secret.stdout
-
-  - name: "Deploy version of install-config.yaml"
-    template:
-      src: "install-config-temp.yaml.j2"
-      dest: "{{ cluster_dir }}/install-config.yaml"
-
-  - name: "Backup install-config.yaml"
-    copy:
-      src: "{{ cluster_dir }}/install-config.yaml"
-      dest: "{{ cluster_dir }}/install-config.yaml.backup"
-
   - name: "Execute openshift-install to create the cluster {{ cluster_dir }}"
     shell: "./openshift-install --dir {{ cluster_dir }} create cluster"
     args:
@@ -158,8 +150,8 @@
     register: cluster_create_result
 
   - set_fact:
-      console_url: "https://console-openshift-console.apps.{{ cluster_name_uuid }}.devcluster.openshift.com/"
-      api_url: "https://api.{{ cluster_name_uuid }}.devcluster.openshift.com:6443/"
+      console_url: "https://console-openshift-console.apps.{{ cluster_name }}.devcluster.openshift.com/"
+      api_url: "https://api.{{ cluster_name }}.devcluster.openshift.com:6443/"
       kubeadmin_password: "{{ lookup('file', '{{ cluster_dir }}/auth/kubeadmin-password') }}"
 
   - name: "Console url, API url, and kubeadmin_password to {{ cluster_dir }}/os-install.log"
