@@ -4,6 +4,7 @@ Download release or version that passed ci of OCP which includes the openshift-i
 ## Settings and defaults
 
 ```
+    # OCP cluster install variables
     install_cluster: true
     base_dir: "~/.os-install"
     ocp_install_dir: "{{ base_dir }}/ocp"
@@ -14,7 +15,10 @@ Download release or version that passed ci of OCP which includes the openshift-i
     ocp_ci_rel_url: "https://openshift-release-artifacts.svc.ci.openshift.org"
     cluster_name: "ocp-cluster-4"
     cluster_dir:  "{{ base_dir }}/{{ cluster_name }}"
+    install_type: "aws"
     aws_region: "us-east-1"
+    gcp_project_id: "openshift-gce-devel"
+    gcp_region: "us-east4"
     pull_secret_file: "~/.aws/pull-secret.json"
     ssh_key_file: "~/.ssh/id_rsa.pub"
     ssh_key: "{{ lookup('file', ssh_key_file) }}"
@@ -22,6 +26,8 @@ Download release or version that passed ci of OCP which includes the openshift-i
     get_ocp: true
     create_cluster: true
     kubeadmin: "kubeadmin"
+    
+    # tekton install variables
     install_tekton: true
 ```
 
