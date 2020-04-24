@@ -134,10 +134,17 @@
   debug:
     var: pull_secret.stdout
 
-- name: "Deploy version of install-config.yaml"
+- name: "Deploy version of install-config.yaml for AWS"
   template:
-    src: "install-config-temp.yaml.j2"
+    src: "install-config-temp-aws.yaml.j2"
     dest: "{{ cluster_dir }}/install-config.yaml"
+  when: install_type == "aws"
+
+- name: "Deploy version of install-config.yaml for GCP"
+  template:
+    src: "install-config-temp-gcp.yaml.j2"
+    dest: "{{ cluster_dir }}/install-config.yaml"
+  when: install_type == "gcp"
 
 - name: "Backup install-config.yaml"
   copy:
