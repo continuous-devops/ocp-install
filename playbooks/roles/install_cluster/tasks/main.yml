@@ -151,7 +151,7 @@
     src: "{{ cluster_dir }}/install-config.yaml"
     dest: "{{ cluster_dir }}/install-config.yaml.backup"
 
-- name: "Create cluster"
+- name: "Create cluster on {{ install_type }}"
   block:
   - name: "Execute openshift-install to create the cluster {{ cluster_dir }}"
     shell: "./openshift-install --dir {{ cluster_dir }} create cluster"
