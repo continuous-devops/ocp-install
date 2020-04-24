@@ -112,6 +112,7 @@
 - name: "Pause for cluster to completely deleted"
   pause:
     seconds: 300
+  when: cluster_dir_status.stat.isdir is defined
 
 - name: "Delete {{ cluster_dir }} directory"
   file:
