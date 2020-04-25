@@ -15,11 +15,19 @@ Download release or version that passed ci of OCP which includes the openshift-i
     ocp_ci_rel_url: "https://openshift-release-artifacts.svc.ci.openshift.org"
     cluster_name: "ocp-cluster-4"
     cluster_dir:  "{{ base_dir }}/{{ cluster_name }}"
-    install_type: "aws"
+    install_type: "gcp"
+    
+    # AWS specific
+    aws_domain: "devcluster.openshift.com"
     aws_region: "us-east-1"
+    
+    # GCP specific
+    gcp_domain: "gcp.devcluster.openshift.com"
     gcp_project_id: "openshift-gce-devel"
     gcp_region: "us-east4"
-    pull_secret_file: "~/.aws/pull-secret.json"
+    
+    # Pull secret and ssh key paths
+    pull_secret_file: "~/.gcp/pull-secret.json"
     ssh_key_file: "~/.ssh/id_rsa.pub"
     ssh_key: "{{ lookup('file', ssh_key_file) }}"
     get_release: true
