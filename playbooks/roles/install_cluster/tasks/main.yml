@@ -134,16 +134,25 @@
   debug:
     var: pull_secret.stdout
 
-- name: "Deploy version of install-config.yaml for AWS"
-  template:
-    src: "install-config-temp-aws.yaml.j2"
-    dest: "{{ cluster_dir }}/install-config.yaml"
+- name: "Deploy cluster on AWS"
+  block:
+  - set_fact:
+      dns_domain: "{{ aws_domain }}"
+
+  - name: "Deploy version of install-config.yaml for AWS"
+    template:
+      src: "install-config-temp-aws.yaml.j2"
+      dest: "{{ cluster_dir }}/install-config.yaml"
   when: install_type == "aws"
 
-- name: "Deploy version of install-config.yaml for GCP"
-  template:
-    src: "install-config-temp-gcp.yaml.j2"
-    dest: "{{ cluster_dir }}/install-config.yaml"
+- name: "Deploy cluster on GCP"
+  block:
+  - set_fact:
+      dns_domain: "{{ gcp_domain }}"
+  - name: "Deploy version of install-config.yaml for GCP"
+    template:
+      src: "install-config-temp-gcp.yaml.j2"
+      dest: "{{ cluster_dir }}/install-config.yaml"
   when: install_type == "gcp"
 
 - name: "Backup install-config.yaml"
@@ -162,16 +171,9 @@
     register: cluster_create_result
 
   - set_fact:
-      console_url: "https://console-openshift-console.apps.{{ cluster_name }}.devcluster.openshift.com/"
-      api_url: "https://api.{{ cluster_name }}.devcluster.openshift.com:6443/"
+      console_url: "https://console-openshift-console.apps.{{ cluster_name }}.{{ dns_domain }}/"
+      api_url: "https://api.{{ cluster_name }}.{{ dns_domain }}:6443/"
       kubeadmin_password: "{{ lookup('file', '{{ cluster_dir }}/auth/kubeadmin-password') }}"
-    when: install_type == "aws"
-
-  - set_fact:
-      console_url: "https://console-openshift-console.apps.{{ cluster_name }}.gcp.devcluster.openshift.com/"
-      api_url: "https://api.{{ cluster_name }}.gcp.devcluster.openshift.com:6443/"
-      kubeadmin_password: "{{ lookup('file', '{{ cluster_dir }}/auth/kubeadmin-password') }}"
-    when: install_type == "gcp"
 
   - name: "Console url, API url, and kubeadmin_password to {{ cluster_dir }}/os-install.log"
     copy:

@@ -26,7 +26,8 @@ Download release or version that passed ci of OCP which includes the openshift-i
     gcp_project_id: "openshift-gce-devel"
     gcp_region: "us-east4"
     
-    # Pull secret and ssh key paths
+    # DNS Domain, pull secret, and ssh key paths
+    dns_domain: "{{ gcp_domain }}"
     pull_secret_file: "~/.gcp/pull-secret.json"
     ssh_key_file: "~/.ssh/id_rsa.pub"
     ssh_key: "{{ lookup('file', ssh_key_file) }}"

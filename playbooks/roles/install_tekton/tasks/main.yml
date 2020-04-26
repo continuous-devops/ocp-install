@@ -1,6 +1,15 @@
 ---
+- name: "Check if the uri is up for cluster {{ cluster_name }}"
+  uri:
+    url: https://console-openshift-console.apps.{{ cluster_name }}.{{ dns_domain }}/
+    validate_certs: no
+  register: ocp_url_status
+  until: ocp_url_status.status == 200
+  retries: 10
+  delay: 6
+
 - name: "Login to cluster as {{ kubeadmin }}"
-  shell: "./oc login -u {{ kubeadmin }} -p $( cat {{ cluster_dir }}/auth/kubeadmin-password ) --insecure-skip-tls-verify=true https://api.$( cat {{ cluster_dir }}/metadata.json | jq -r '.clusterName' ).devcluster.openshift.com:6443"
+  shell: "./oc login -u {{ kubeadmin }} -p $( cat {{ cluster_dir }}/auth/kubeadmin-password ) --insecure-skip-tls-verify=true https://api.$( cat {{ cluster_dir }}/metadata.json | jq -r '.clusterName' ).{{ dns_domain }}:6443"
   args:
     chdir: "{{ ocp_install_dir }}"
 
