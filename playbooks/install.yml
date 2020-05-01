@@ -1,6 +1,23 @@
 ---
-- hosts: '{{ hosts | default("all") }}'
+- name: "Install OCP installer, client, cluster, and tektoncd pipelines"
+  hosts: '{{ hosts | default("all") }}'
+  become: '{{ become | default("no") }}'
   gather_facts: '{{ gather_facts | default("yes") }}'
-  roles:
-    - { role: install_cluster, when: "install_cluster|bool == true" }
-    - { role: install_tekton, when: "install_tekton|bool == true" }
+
+  vars_files:
+    - "{{ playbook_dir }}/group_vars/all/vars.yml"
+
+  tasks:
+    - name: "Install prerequisites"
+      include_role:
+        name: install_prereqs
+
+    - name: "Install OpenShift Cluster on {{ install_type }}"
+      include_role:
+        name: install_cluster
+      when: "install_cluster|bool == true"
+
+    - name: "Install Tektoncd pipelines operator the OpenShift cluster"
+      include_role:
+        name: install_tekton
+      when: "install_tekton|bool == true"

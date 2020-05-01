@@ -1,4 +1,5 @@
 ---
+# Install the tekton operator
 - name: "Check if the uri is up for cluster {{ cluster_name }}"
   uri:
     url: https://console-openshift-console.apps.{{ cluster_name }}.{{ dns_domain }}/
@@ -13,8 +14,13 @@
   args:
     chdir: "{{ ocp_install_dir }}"
 
+- name: "Deploy version of openshift-pipelines subscription"
+  template:
+    src: "openshift-pipelines-operator-sub.yaml.j2"
+    dest: "{{ cluster_dir }}/openshift-pipelines-operator-sub.yaml"
+
 - name: "Subscribe to the openshift-pipelines-operator in the openshift market place"
-  shell: "./oc apply -f {{ role_path }}/files/openshift-pipelines-operator-sub.yaml"
+  shell: "./oc apply -f {{ cluster_dir }}/openshift-pipelines-operator-sub.yaml"
   args:
     chdir: "{{ ocp_install_dir }}"
 
@@ -26,3 +32,6 @@
   shell: "./oc apply -f {{ role_path }}/files/openshift-pipelines-operator-instance.yaml"
   args:
     chdir: "{{ ocp_install_dir }}"
+
+- name: "Find and install the latest tektoncd :: tkn cli"
+  include_tasks: install_tkn_cli.yml

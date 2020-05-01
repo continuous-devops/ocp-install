@@ -1,8 +1,6 @@
-# Default os-install variable settings
-
 # OCP cluster install variables
-install_cluster: true
-base_dir: "~/.os-install"
+base_dir: "~/.ocp-install"
+bin_dir: "{{ base_dir }}/bin"
 ocp_install_dir: "{{ base_dir }}/ocp"
 ocp_ci_release: "4.4.0-0.ci"
 ocp_release: "latest"
@@ -31,6 +29,3 @@ get_release: true
 get_ocp: true
 create_cluster: true
 kubeadmin: "kubeadmin"
-
-# tekton install variables
-install_tekton: true

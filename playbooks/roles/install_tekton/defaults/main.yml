@@ -1,0 +1,6 @@
+---
+base_dir: "~/.ocp-install"
+bin_dir: "{{ base_dir }}/bin"
+ocp_install_dir: "{{ base_dir }}/ocp"
+op_channel: "canary"
+tkn_version: "0.9.0"

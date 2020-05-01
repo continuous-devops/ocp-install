@@ -1,0 +1,8 @@
+---
+base_dir: "~/.ocp-install"
+bin_dir: "{{ base_dir }}/bin"
+ocp_install_dir: "{{ base_dir }}/ocp"
+kubectl_version: "1.18.2"
+go_version: "1.14.2"
+jq_version: "1.6"
+yq_version: "2.4.1"

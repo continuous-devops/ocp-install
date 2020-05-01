@@ -3,10 +3,22 @@ Download release or version that passed ci of OCP which includes the openshift-i
 
 ## Settings and defaults
 
+- playbooks/group_vars/all/vars.yml
+
 ```
-    # OCP cluster install variables
+    # Default overall ocp cluster variable settings
     install_cluster: true
-    base_dir: "~/.os-install"
+    install_tekton: true
+    
+    # Binary prereqs
+    kubectl_version: "1.18.2"
+    go_version: "1.14.2"
+    jq_version: "1.6"
+    yq_version: "2.4.1"
+    
+    # OCP cluster install variables
+    base_dir: "~/.ocp-install"
+    bin_dir: "{{ base_dir }}/bin"
     ocp_install_dir: "{{ base_dir }}/ocp"
     ocp_ci_release: "4.4.0-0.ci"
     ocp_release: "latest"
@@ -36,24 +48,25 @@ Download release or version that passed ci of OCP which includes the openshift-i
     create_cluster: true
     kubeadmin: "kubeadmin"
     
-    # tekton install variables
-    install_tekton: true
+    # tekton installation variables
+    op_channel: "canary"
+    tkn_version: "0.9.0"
 ```
 
 ## Examples
 
-### Install cluster in AWS and openshift pipelines (tekton)
+### Install cluster in GCP and openshift pipelines (tekton)
 ```
 ansible-playbook -vv -i "localhost," -c local -e cluster_name=my-tekton-cluster install.yml
 ```
 
-### Install cluster in AWS only
+### Install cluster in GCP only
 ```
 ansible-playbook -vv -i "localhost," -c local -e cluster_name=my-tekton-cluster \
     -e install_tekton=false install.yml
 ```
 
-### Install cluster in AWS with ci version 4.3 of OCP and openshift pipelines (tekton)
+### Install cluster only in GCP with ci version 4.3 of OCP
 ```
 ansible-playbook -vv -i "localhost," -c local -e cluster_name=my-tekton-cluster \
     -e ocp_ci_release=4.3.0-0.ci \

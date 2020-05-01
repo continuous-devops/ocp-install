@@ -1,0 +1,12 @@
+---
+# Install the tkn CLI
+- name: "Create directory for the binaries needed for operator testing"
+  file:
+    path: "{{ bin_dir }}"
+    state: directory
+
+- name: "Install tektoncd :: tkn cli version {{ tkn_version }}"
+  unarchive:
+    src: "https://github.com/tektoncd/cli/releases/download/v{{ tkn_version }}/tkn_{{ tkn_version }}_Linux_arm64.tar.gz"
+    dest: "{{ bin_dir }}"
+    remote_src: yes

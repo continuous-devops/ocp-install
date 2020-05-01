@@ -1,0 +1,25 @@
+- name: "Create directory for the binaries needed for operator testing"
+  file:
+    path: "{{ bin_dir }}"
+    state: directory
+
+- set_fact:
+    kubectl_bin: "{{ bin_dir}}/kubectl"
+    jq_bin: "{{ bin_dir }}/jq"
+    yq_bin: "{{ bin_dir }}/yq"
+    go_bin: "{{ bin_dir }}/go/bin/go"
+
+- name: "Download kubectl {{ kubectl_version }}"
+  shell: "curl -Lo {{ kubectl_bin }} https://storage.googleapis.com/kubernetes-release/release/v{{ kubectl_version }}/bin/linux/amd64/kubectl && chmod +x {{ kubectl_bin }}"
+
+- name: "Download and extract go binary to {{ bin_dir }}"
+  unarchive:
+    src: "https://storage.googleapis.com/golang/go{{ go_version }}.linux-amd64.tar.gz"
+    dest: "{{ bin_dir }}"
+    remote_src: yes
+
+- name: "Download jq {{ jq_version }}"
+  shell: "curl -Lo {{ jq_bin }} https://github.com/stedolan/jq/releases/download/jq-{{ jq_version }}/jq-linux64 && chmod +x {{ jq_bin }}"
+
+- name: "Download yq {{ yq_version }}"
+  shell: "curl -Lo {{ yq_bin }} https://github.com/mikefarah/yq/releases/download/{{ yq_version }}/yq_linux_amd64 && chmod +x {{ yq_bin }}"
