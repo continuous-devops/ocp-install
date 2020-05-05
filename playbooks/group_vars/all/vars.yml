@@ -1,4 +1,5 @@
 # Default overall ocp cluster variable settings
+install_prereqs: true
 install_cluster: true
 install_tekton: true
 

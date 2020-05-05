@@ -7,6 +7,7 @@ Download release or version that passed ci of OCP which includes the openshift-i
 
 ```
     # Default overall ocp cluster variable settings
+    install_prereqs: true
     install_cluster: true
     install_tekton: true
     

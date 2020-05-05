@@ -11,6 +11,7 @@
     - name: "Install prerequisites"
       include_role:
         name: install_prereqs
+      when: "install_prereqs|bool == true"
 
     - name: "Install OpenShift Cluster on {{ install_type }}"
       include_role:
