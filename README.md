@@ -58,13 +58,15 @@ Download release or version that passed ci of OCP which includes the openshift-i
 
 ### Install cluster in GCP and openshift pipelines (tekton)
 ```
-ansible-playbook -vv -i "localhost," -c local -e cluster_name=my-tekton-cluster install.yml
+ansible-playbook -vv -i "localhost," -c local -e cluster_name=my-tekton-cluster \
+    ./playbooks/install.yml
 ```
 
 ### Install cluster in GCP only
 ```
 ansible-playbook -vv -i "localhost," -c local -e cluster_name=my-tekton-cluster \
-    -e install_tekton=false install.yml
+    -e install_tekton=false 
+    ./playbooks/install.yml
 ```
 
 ### Install cluster only in GCP with ci version 4.3 of OCP
@@ -72,7 +74,15 @@ ansible-playbook -vv -i "localhost," -c local -e cluster_name=my-tekton-cluster 
 ansible-playbook -vv -i "localhost," -c local -e cluster_name=my-tekton-cluster \
     -e ocp_ci_release=4.3.0-0.ci \
     -e get_release=false \
-    -e install_tekton=false install.yml
+    -e install_tekton=false \
+    ./playbooks/install.yml
+```
+
+### Install prereqs and tekton only on some cluster with a different dns_domain
+```
+ansible-playbook -vv -i "localhost," -c local -e cluster_name=cptektonari \
+    -e install_cluster=false -e install_tekton=true -e dns_domain=lab.clus2.redhat.com \
+    ./playbooks/install.yml
 ```
 
 ## Outputs
