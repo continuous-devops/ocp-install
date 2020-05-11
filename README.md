@@ -1,39 +1,45 @@
-# os-install
-Download release or version that passed ci of OCP which includes the openshift-installer and oc
+# ocp-install
+- Install prereqs of go, kubectl, jq, and yq
+- Download release or version that passed ci of OCP which includes the openshift-installer and oc
+- Install a cluster on GCP or AWS
+- Install OpenShift Pipelines/Tektoncd Pipelines
 
 ## Settings and defaults
 
 - playbooks/group_vars/all/vars.yml
 
 ```
-    # Default overall ocp cluster variable settings
+    ## Default overall ocp cluster variable settings
+    base_dir: "~/.ocp-install"
+    bin_dir: "{{ base_dir }}/bin"
     install_prereqs: true
+    install_ocp_bins: true
     install_cluster: true
     install_tekton: true
     
-    # Binary prereqs
+    ## Binary prereqs
     kubectl_version: "1.18.2"
     go_version: "1.14.2"
     jq_version: "1.6"
     yq_version: "2.4.1"
     
-    # OCP cluster install variables
-    base_dir: "~/.ocp-install"
-    bin_dir: "{{ base_dir }}/bin"
+    ## Get OCP installer and client
     ocp_install_dir: "{{ base_dir }}/ocp"
     ocp_ci_release: "4.4.0-0.ci"
     ocp_release: "latest"
     ocp_rel_url: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp"
     ocp_ci_api_rel_url: "https://openshift-release.svc.ci.openshift.org/api/v1/releasestream"
     ocp_ci_rel_url: "https://openshift-release-artifacts.svc.ci.openshift.org"
-    cluster_name: "ocp-cluster-4"
+    get_release: true
+    
+    ## OCP cluster installtion
+    cluster_name: "my-ocp-cluster"
     cluster_dir:  "{{ base_dir }}/{{ cluster_name }}"
     install_type: "gcp"
     
     # AWS specific
     aws_domain: "devcluster.openshift.com"
     aws_region: "us-east-1"
-    
     # GCP specific
     gcp_domain: "gcp.devcluster.openshift.com"
     gcp_project_id: "openshift-gce-devel"
@@ -44,15 +50,20 @@ Download release or version that passed ci of OCP which includes the openshift-i
     pull_secret_file: "~/.gcp/pull-secret.json"
     ssh_key_file: "~/.ssh/id_rsa.pub"
     ssh_key: "{{ lookup('file', ssh_key_file) }}"
-    get_release: true
-    get_ocp: true
     create_cluster: true
     kubeadmin: "kubeadmin"
     
-    # tekton installation variables
+    ## OpenShift Pipelines operator and tkn cli
     op_channel: "canary"
     tkn_version: "0.9.0"
 ```
+
+## ansible roles
+
+- install_prereqs - Install prereq binaries - go, kubectl, jq, and yq  
+- install_ocp_bins - Install OpenShift installer and client
+- install_cluster - Install an OpenShift cluster on GCP or AWS providing your own pullsecret and ssh key
+- install_tekton - Install OpenShift Pipelines/Tektoncd Pipelines
 
 ## Examples
 

@@ -1,0 +1,98 @@
+---
+# Install OCP cluster on GCP or AWS
+- name: "Create install directory"
+  file:
+    path: "{{ ocp_install_dir }}"
+    state: directory
+
+- name: "Get {{ ocp_release }} release of OCP"
+  block:
+    - name: "Get version and upgrade of release {{ ocp_release }}"
+      shell:  "curl -s {{ ocp_rel_url }}/{{ ocp_release }}/release.txt | egrep 'Version:|Upgrades:'"
+      register: ocp_release_info
+
+    - name: "Display version and upgrade for OCP"
+      debug:
+        var: ocp_release_info.stdout_lines
+
+    - name: "Download the OpenShift installer"
+      get_url:
+        url: "{{ ocp_rel_url }}/{{ ocp_release }}/openshift-install-linux.tar.gz"
+        dest: "{{ ocp_install_dir }}"
+
+    - name: "Unarchive the OpenShift installer"
+      unarchive:
+        src: "{{ ocp_install_dir }}/openshift-install-linux.tar.gz"
+        dest: "{{ ocp_install_dir }}"
+
+    - name: "Download the OpenShift oc client"
+      get_url:
+        url: "{{ ocp_rel_url }}/{{ ocp_release }}/openshift-client-linux.tar.gz"
+        dest: "{{ ocp_install_dir }}"
+
+    - name: "Unarchive the OpenShift oc client"
+      unarchive:
+        src: "{{ ocp_install_dir }}/openshift-client-linux.tar.gz"
+        dest: "{{ ocp_install_dir }}"
+  when: get_release|bool == true and get_ocp|bool == true
+
+- name: "Get the {{ ocp_ci_release }} that is green in CI"
+  block:
+    - name: "Get OpenShift CI artifact location that last passed CI"
+      shell: "curl -s {{ ocp_ci_api_rel_url }}/{{ ocp_ci_release }}/latest | jq '.pullSpec' | awk -F '/' '{print $NF}' | sed 's/release\\:\\(.*\\)\"/\\1/'"
+      args:
+        chdir: "{{ ocp_install_dir }}"
+      register: ocp_artifact_info
+
+    - name: "Display OpenShift CI artifact info"
+      debug:
+        var: ocp_artifact_info.stdout
+
+    - name: "Keep checking until OpenShift CI artifacts are ready for download"
+      shell: "curl -s {{ ocp_ci_rel_url }}/{{ ocp_artifact_info.stdout }}"
+      register: oc_check_ci_release
+      until: oc_check_ci_release.stdout  == ""
+      retries: 30
+      delay: 10
+      ignore_errors: yes
+
+    - name: "Get version and upgrade of release {{ ocp_artifact_info.stdout }} from OpenShift CI"
+      shell: "curl -s {{ ocp_ci_rel_url }}/{{ ocp_artifact_info.stdout }}/release.txt | egrep 'Version:|Upgrades:'"
+      args:
+        chdir: "{{ ocp_install_dir }}"
+      register: ocp_release_info
+
+    - name: "Display version and upgrade for OCP"
+      debug:
+        var: ocp_release_info.stdout_lines
+
+    - name: "Download the OpenShift installer from CI"
+      get_url:
+        url: "{{ ocp_ci_rel_url }}/{{ ocp_artifact_info.stdout }}/openshift-install-linux-{{ ocp_artifact_info.stdout }}.tar.gz"
+        dest: "{{ ocp_install_dir }}"
+
+    - name: "Unarchive the OpenShift installer from CI"
+      unarchive:
+        src: "{{ ocp_install_dir }}/openshift-install-linux-{{ ocp_artifact_info.stdout }}.tar.gz"
+        dest: "{{ ocp_install_dir }}"
+
+    - name: "Download the OpenShift oc client from CI"
+      get_url:
+        url: "{{ ocp_ci_rel_url }}/{{ ocp_artifact_info.stdout }}/openshift-client-linux-{{ ocp_artifact_info.stdout }}.tar.gz"
+        dest: "{{ ocp_install_dir }}"
+
+    - name: "Unarchive the OpenShift oc client from CI"
+      unarchive:
+        src: "{{ ocp_install_dir }}/openshift-client-linux-{{ ocp_artifact_info.stdout }}.tar.gz"
+        dest: "{{ ocp_install_dir }}"
+  when: get_release|bool == false and get_ocp|bool == true
+
+- name: "OpenShift openshift-install Version"
+  shell: "./openshift-install version"
+  args:
+    chdir: "{{ ocp_install_dir }}"
+
+- name: "OpenShift Client Version"
+  shell: "./oc version --client"
+  args:
+    chdir: "{{ ocp_install_dir }}"

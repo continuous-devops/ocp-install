@@ -13,6 +13,11 @@
         name: install_prereqs
       when: "install_prereqs|bool == true"
 
+    - name: "Install ocp installer and client"
+      include_role:
+        name: install_ocp_bins
+      when: "install_ocp_bins|bool == true"
+
     - name: "Install OpenShift Cluster on {{ install_type }}"
       include_role:
         name: install_cluster

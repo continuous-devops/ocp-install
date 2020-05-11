@@ -1,13 +1,10 @@
-# OCP cluster install variables
+# Install OCP cluster
 base_dir: "~/.ocp-install"
 bin_dir: "{{ base_dir }}/bin"
 ocp_install_dir: "{{ base_dir }}/ocp"
-ocp_ci_release: "4.4.0-0.ci"
-ocp_release: "latest"
-ocp_rel_url: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp"
-ocp_ci_api_rel_url: "https://openshift-release.svc.ci.openshift.org/api/v1/releasestream"
-ocp_ci_rel_url: "https://openshift-release-artifacts.svc.ci.openshift.org"
-cluster_name: "ocp-cluster-4"
+
+# Cluster naming
+cluster_name: "my-ocp-cluster"
 cluster_dir:  "{{ base_dir }}/{{ cluster_name }}"
 install_type: "gcp"
 
@@ -26,6 +23,5 @@ pull_secret_file: "~/.gcp/pull-secret.json"
 ssh_key_file: "~/.ssh/id_rsa.pub"
 ssh_key: "{{ lookup('file', ssh_key_file) }}"
 get_release: true
-get_ocp: true
 create_cluster: true
 kubeadmin: "kubeadmin"
