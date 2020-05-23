@@ -54,7 +54,9 @@
     kubeadmin: "kubeadmin"
     
     ## OpenShift Pipelines operator and tkn cli
-    op_channel: "canary"
+    op_name: "openshift-pipelines-operator-rh"
+    op_source: "redhat-operators"
+    op_channel: "preview"
     tkn_version: "0.9.0"
 ```
 
