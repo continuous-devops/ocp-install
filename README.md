@@ -56,7 +56,7 @@
     ## OpenShift Pipelines operator and tkn cli
     op_name: "openshift-pipelines-operator-rh"
     op_source: "redhat-operators"
-    op_channel: "preview"
+    op_channel: "ocp-4.4"
     tkn_version: "0.9.0"
 ```
 
