@@ -10,7 +10,7 @@
   delay: 6
 
 - name: "Login to cluster as {{ kubeadmin }}"
-  shell: "./oc login -u {{ kubeadmin }} -p $( cat {{ cluster_dir }}/auth/kubeadmin-password ) --insecure-skip-tls-verify=true https://api.$( cat {{ cluster_dir }}/metadata.json | jq -r '.clusterName' ).{{ dns_domain }}:6443"
+  shell: "./oc login -u {{ kubeadmin }} -p $( cat {{ cluster_dir }}/auth/kubeadmin-password ) --insecure-skip-tls-verify=true $( cat {{ cluster_dir }}/auth/kubeconfig | grep 'server:' | awk '{print $2}' )"
   args:
     chdir: "{{ ocp_install_dir }}"
 
