@@ -1,8 +1,12 @@
 ---
 # Install the tekton operator
+- name: "Get console URL"
+  shell: "grep 'server:' {{ cluster_dir }}/auth/kubeconfig | awk '{print $2}' | sed 's/https:\/\/api.\(.*\):6443/https:\/\/console-openshift-console.apps.\1/'"
+  register: kubeconfig_console_url
+
 - name: "Check if the uri is up for cluster {{ cluster_name }}"
   uri:
-    url: https://console-openshift-console.apps.{{ cluster_name }}.{{ dns_domain }}/
+    url: "{{ kubeconfig_console_url.stdout }}"
     validate_certs: no
   register: ocp_url_status
   until: ocp_url_status.status == 200
@@ -10,7 +14,7 @@
   delay: 6
 
 - name: "Login to cluster as {{ kubeadmin }}"
-  shell: "./oc login -u {{ kubeadmin }} -p $( cat {{ cluster_dir }}/auth/kubeadmin-password ) --insecure-skip-tls-verify=true $( cat {{ cluster_dir }}/auth/kubeconfig | grep 'server:' | awk '{print $2}' )"
+  shell: "./oc login -u {{ kubeadmin }} -p $( cat {{ cluster_dir }}/auth/kubeadmin-password ) --insecure-skip-tls-verify=true $( grep 'server:' {{ cluster_dir }}/auth/kubeconfig | awk '{print $2}' )"
   args:
     chdir: "{{ ocp_install_dir }}"
 
