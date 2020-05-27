@@ -1,7 +1,7 @@
 ---
 # Install the tekton operator
 - name: "Get console URL"
-  shell: "grep 'server:' {{ cluster_dir }}/auth/kubeconfig | awk '{print $2}' | sed 's/https:\/\/api.\(.*\):6443/https:\/\/console-openshift-console.apps.\1/'"
+  shell: "grep 'server:' {{ cluster_dir }}/auth/kubeconfig | awk '{print $2}' | sed 's/https:\\/\\/api.\\(.*\\):6443/https:\\/\\/console-openshift-console.apps.\\1/'"
   register: kubeconfig_console_url
 
 - name: "Check if the uri is up for cluster {{ cluster_name }}"
