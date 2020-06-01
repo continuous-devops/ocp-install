@@ -75,10 +75,36 @@ ansible-playbook -vv -i "localhost," -c local -e cluster_name=my-tekton-cluster 
     ./playbooks/install.yml
 ```
 
-### Install cluster in GCP only
+### Install latest OCP binaries only
+```
+ansible-playbook -vv -i "localhost," -c local \
+    -e install_cluster=false \
+    -e install_tekton=false \ 
+    ./playbooks/install.yml
+```
+
+### Install latest OCP binaries only
+```
+ansible-playbook -vv -i "localhost," -c local \
+    -e install_cluster=false \
+    -e install_tekton=false \ 
+    ./playbooks/install.yml
+```
+
+### Install OCP 4.4 binaries only that passed ci
+```
+ansible-playbook -vv -i "localhost," -c local \
+    -e ocp_ci_release=4.4.0-0.ci \
+	-e install_cluster=false
+    -e get_release=false \
+    -e install_tekton=false \
+    ./playbooks/install.yml
+```
+
+### Install cluster in GCP and OCP binaries
 ```
 ansible-playbook -vv -i "localhost," -c local -e cluster_name=my-tekton-cluster \
-    -e install_tekton=false 
+    -e install_tekton=false \
     ./playbooks/install.yml
 ```
 
