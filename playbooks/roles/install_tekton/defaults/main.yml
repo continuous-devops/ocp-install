@@ -7,7 +7,6 @@ ocp_install_dir: "{{ base_dir }}/ocp"
 # Cluster naming
 cluster_name: "my-ocp-cluster"
 cluster_dir:  "{{ base_dir }}/{{ cluster_name }}"
-install_type: "gcp"
 
 # OpenShift Pipelines operator and tkn cli
 op_name: "openshift-pipelines-operator-rh"
