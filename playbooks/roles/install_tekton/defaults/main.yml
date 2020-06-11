@@ -11,5 +11,5 @@ cluster_dir:  "{{ base_dir }}/{{ cluster_name }}"
 # OpenShift Pipelines operator and tkn cli
 op_name: "openshift-pipelines-operator-rh"
 op_source: "redhat-operators"
-op_channel: "ocp-4.4"
+op_channel: "preview"
 tkn_version: "0.9.0"
